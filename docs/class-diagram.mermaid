@@ -1,0 +1,159 @@
+classDiagram
+    class Printer {
+        +String id
+        +String name
+        +String host
+        +int port
+        +String? ippPath
+        +String? model
+        +PrinterStatus status
+        +DateTime lastSeen
+        +Uri ippUri()
+    }
+    class PrinterStatus {
+        <<enum>>
+        online
+        offline
+        unknown
+    }
+    class PrintSettings {
+        +PaperSize paper
+        +ColorMode colorMode
+        +PrintQuality quality
+        +PrintSides sides
+        +int copies
+    }
+    class ColorMode {
+        <<enum>>
+        grayscale
+        color
+    }
+    class PaperSize {
+        <<enum>>
+        a4
+    }
+    class PrintQuality {
+        <<enum>>
+        draft
+        normal
+        high
+    }
+    class PrintSides {
+        <<enum>>
+        oneSided
+    }
+    class PrintJob {
+        +String id
+        +Printer printer
+        +PrintSettings settings
+        +Uint8List pdf
+        +PrintStatus status
+        +AppError? error
+    }
+    class PrintStatus {
+        <<enum>>
+        idle
+        sending
+        success
+        failed
+    }
+    class ImportedImage {
+        +String path
+        +ImageSource source
+        +Uint8List? bytes
+    }
+    class ImageSource {
+        <<enum>>
+        album
+        camera
+        share
+    }
+    class IdCardScan {
+        +ImportedImage front
+        +ImportedImage back
+        +Quad? frontCorners
+        +Quad? backCorners
+        +Uint8List? correctedFront
+        +Uint8List? correctedBack
+        +bool manualMode
+    }
+    class Quad {
+        +Point tl
+        +Point tr
+        +Point br
+        +Point bl
+    }
+    class AppError {
+        +ErrorCode code
+        +String friendlyMessage
+        +String? technical
+    }
+    class ErrorCode {
+        <<enum>>
+        printerOffline
+        printerBusy
+        jobRejected
+        paperEmpty
+        networkTimeout
+        ippError
+        unknown
+    }
+
+    class PrinterDiscoveryService {
+        +Stream~Printer~ watchPrinters()
+        +startDiscovery()
+        +refresh()
+        +stop()
+    }
+    class PrinterLiveness {
+        +scheduleProbe(Printer)
+        +probeAlive(Printer) bool
+    }
+    class IppClient {
+        +sendPrintJob(Printer,Uint8List,PrintSettings) IppResponse
+        +getPrinterAttributes(Printer) IppResponse
+        +probeAlive(Printer) bool
+    }
+    class IppMessage {
+        +encode(int,Map) Uint8List
+        +decode(Uint8List) IppResponse
+    }
+    class PdfBuilder {
+        +buildSingle(Uint8List,PrintSettings) Uint8List
+        +buildGrid(List~Uint8List~,int,PrintSettings) Uint8List
+        +buildIdCard(Uint8List,Uint8List,bool) Uint8List
+    }
+    class ImportManager {
+        +pickFrom(ImageSource) List~ImportedImage~
+    }
+    class EdgeDetector {
+        +detect(Uint8List) Quad?
+    }
+    class PerspectiveCorrector {
+        +correct(Uint8List,Quad) Uint8List
+    }
+    class SettingsService {
+        +loadSettings() PrintSettings
+        +saveSettings(PrintSettings)
+        +saveFrequentPrinter(Printer)
+    }
+
+    Printer --> PrinterStatus
+    PrintJob --> Printer
+    PrintJob --> PrintSettings
+    PrintJob --> PrintStatus
+    PrintSettings --> PaperSize
+    PrintSettings --> ColorMode
+    PrintSettings --> PrintQuality
+    PrintSettings --> PrintSides
+    IdCardScan --> ImportedImage
+    IdCardScan --> Quad
+    AppError --> ErrorCode
+    PrinterDiscoveryService ..> Printer : emits
+    PrinterDiscoveryService ..> PrinterLiveness
+    PrinterLiveness ..> IppClient : uses
+    IppClient ..> IppMessage : builds/parses
+    PdfBuilder ..> PrintSettings
+    ImportManager ..> ImportedImage
+    EdgeDetector ..> Quad
+    PerspectiveCorrector ..> Quad

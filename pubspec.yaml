@@ -1,0 +1,95 @@
+# 无广告打印机 App —— Flutter 工程配置
+#
+# 工程名：printer_app
+# 框架：Flutter 3.x + Dart，状态管理使用 Riverpod（经典 API，无需 build_runner 代码生成）
+#
+# 依赖用途说明：
+#   flutter_riverpod       状态管理 + 轻量 DI（发现流 / 探活 / 导入 / 扫描 / 打印状态）
+#   http                 IPP 客户端 HTTP/1.1 传输（Content-Type: application/ipp）
+#   nsd                  跨平台 mDNS/NSD 发现（_ipp._tcp / _printer._tcp）
+#   pdf                  图片排版到 A4 PDF（单图 / 多合一 / 身份证拼版）
+#   image                灰度/对比度增强、图像预处理、透视采样（纯 Dart）
+#   image_picker         相册多选 + 相机拍照
+#   receive_sharing_intent  微信/系统分享接入（无需 OpenSDK）
+#   edge_detection       端侧 OpenCV 文档边缘检测（原生相机/相册采集 + 交互裁切兜底）
+#   permission_handler    edge_detection 内部需要相机/相册权限申明
+#   shared_preferences   打印设置 + 常用打印机持久化
+#   path_provider        本地临时目录（身份证处理中间产物，不落共享目录）
+#
+# ───────────────────────────────────────────────────────────────
+# 平台权限配置（需在执行 `flutter create .` 生成原生壳后补充，已在下方
+# android/ 与 ios/ 文件中给出示例）：
+#
+# Android（android/app/src/main/AndroidManifest.xml）：
+#   <uses-permission android:name="android.permission.INTERNET" />
+#   <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+#   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+#   <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+#   <uses-permission android:name="android.permission.CAMERA" />
+#   <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />  <!-- Android 13+ -->
+#   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+#       android:maxSdkVersion="32" />
+#   接收系统分享需 <intent-filter> (action SEND / SEND_MULTIPLE, mime image/*)
+#
+# iOS（ios/Runner/Info.plist）：
+#   NSCameraUsageDescription        —— 拍照
+#   NSPhotoLibraryUsageDescription  —— 相册
+#   NSLocalNetworkUsageDescription  —— 本地网络/mDNS 发现（iOS 14+ 必需）
+#   NSBonjourServices               —— _ipp._tcp / _printer._tcp
+#   <key>UIBackgroundModes</key><array><string>network</string></array>  (可选)
+#   接收分享需在 Info.plist 配置 CFBundleDocumentTypes / UTImportedTypeDeclarations
+# ───────────────────────────────────────────────────────────────
+
+name: printer_app
+description: 零广告、隐私优先的通用局域网打印机 App（ID 证本地识别拼版）。
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+  flutter: '>=3.16.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # 状态管理 + 轻量 DI
+  flutter_riverpod: ^2.4.0
+
+  # IPP 客户端 HTTP/1.1 传输
+  http: ^1.2.0
+
+  # 跨平台 mDNS/NSD 发现
+  nsd: ^0.6.0
+
+  # 图片排版到 A4 PDF
+  pdf: ^3.10.0
+
+  # 图像预处理（灰度/对比度/透视采样）
+  image: ^4.1.0
+
+  # 相册多选 + 相机拍照
+  image_picker: ^1.0.0
+
+  # 微信/系统分享接入（无需 OpenSDK）
+  receive_sharing_intent: ^1.8.0
+
+  # 端侧 OpenCV 文档边缘检测（原生相机/相册采集 + 交互裁切兜底）
+  edge_detection: ^1.1.3
+
+  # edge_detection 内部依赖：相机/相册权限申明（显式声明以避免解析歧义）
+  permission_handler: ^10.0.0
+
+  # 打印设置 + 常用打印机持久化
+  shared_preferences: ^2.2.0
+
+  # 本地临时目录
+  path_provider: ^2.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true

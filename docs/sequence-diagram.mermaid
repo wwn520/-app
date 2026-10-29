@@ -1,0 +1,55 @@
+sequenceDiagram
+    autonumber
+    actor User
+    participant Home as HomeScreen
+    participant Disc as PrinterDiscoveryService
+    participant NS as nsd
+    participant IPP as IppClient
+    participant Import as ImportManager
+    participant Scan as IdCardScanFlow
+    participant PDF as PdfBuilder
+    participant Status as PrintStatusScreen
+
+    User->>Home: 启动 App
+    Home->>Disc: startDiscovery()
+    Disc->>NS: browse(_ipp._tcp, _printer._tcp)
+    NS-->>Disc: ServiceFound(Printer)
+    Disc-->>Home: Stream<Printer> 列表(在线)
+    Home->>User: 展示在线打印机
+
+    User->>Home: 选图片来源(相册/拍照/微信)
+    Home->>Import: pickFrom(source)
+    Import-->>Home: List<ImportedImage>
+
+    opt 身份证模式
+        User->>Scan: 上传人像面 + 国徽面
+        Scan->>Scan: EdgeDetector.detect → Quad?
+        alt 自动达标
+            Scan->>Scan: PerspectiveCorrector.correct()
+        else 不达标/手动
+            User->>Scan: 拖拽四角(corner_editor_overlay)
+            Scan->>Scan: correct(manualQuad)
+        end
+        Scan->>PDF: buildIdCard(front, back)
+    else 普通模式
+        User->>PDF: buildSingle / buildGrid
+    end
+
+    User->>Home: 设置(纸张A4/色彩/质量)
+    Home->>PDF: 生成 A4 PDF (Uint8List)
+    PDF-->>Home: pdfBytes
+
+    User->>Status: 点「打印」
+    Status->>IPP: sendPrintJob(printer, pdf, settings)
+    IPP->>IPP: 组装 Print-Job(print-color-mode, media=A4, sides)
+    IPP->>Printer: HTTP POST application/ipp + PDF
+    alt 成功
+        Printer-->>IPP: job-id, successful-ok
+        IPP-->>Status: PrintStatus.success
+        Status-->>User: 打印成功
+    else 失败/超时
+        Printer-->>IPP: error / 无响应
+        IPP-->>Status: PrintStatus.failed + AppError
+        Status-->>User: 友好错误 + 重试
+        User->>Status: 重试 → sendPrintJob
+    end

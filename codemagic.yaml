@@ -1,0 +1,55 @@
+# Codemagic 云端自动构建配置（安卓 APK + iOS IPA）
+#
+# 用法（你只需做一次）：
+#   1. 到 https://codemagic.io 用 GitHub 账号登录，授权访问本仓库
+#   2. 在 Codemagic 后台「Team / Personal Account → Integrations」里连接你的
+#      Apple Developer 账号（用于 iOS 签名）
+#   3. 点击 Start new build，选此 workflow，Codemagic 会在它的 Mac 上自动：
+#      flutter pub get → 构建安卓 APK → 用你的苹果账号签名构建 iOS IPA
+#   4. 构建完成后在 Artifacts 里下载 .apk（安卓）和 .ipa（iPhone，用 TestFlight 或直装）
+#
+# 说明：iOS 必须有付费苹果开发者账号（$99/年）才能签名安装，这是苹果强制要求。
+
+workflows:
+  printer-app-build:
+    name: Printer App (Android + iOS)
+    instance_type: mac_mini_m1
+    max_build_duration: 60
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+      groups:
+        - apple_credentials   # 在 Codemagic UI 中配置：APPLE_ID / APP_STORE_CONNECT_KEY / CERTIFICATE_PRIVATE_KEY 等
+      ios_signing:
+        distribution_type: app_store  # 或 development / ad_hoc，按你的安装方式选
+        provisioning_profiles: automatic
+      vars:
+        BUNDLE_ID: "com.example.printerapp"   # 改成你自己的 Bundle ID（需在苹果后台注册）
+    scripts:
+      - name: 生成原生工程（若缺失）
+        script: |
+          if [ ! -d "ios/Runner.xcworkspace" ]; then
+            flutter create --platforms=ios,android .
+          fi
+      - name: 应用权限补丁
+        script: python3 tools/patch_permissions.py
+      - name: 获取依赖
+        script: flutter pub get
+
+      - name: 构建安卓 APK
+        script: flutter build apk --release --split-per-abi
+
+      - name: 构建 iOS IPA（自动签名）
+        script: |
+          flutter build ipa --release \
+            --export-options-plist=ios/ExportOptions.plist
+
+    artifacts:
+      - build/app/outputs/flutter-apk/*.apk
+      - build/ios/ipa/*.ipa
+
+    publishing:
+      email:
+        recipients:
+          - user@example.com   # 改成你的邮箱，构建完成会通知你

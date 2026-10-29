@@ -1,0 +1,29 @@
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+*.iml
+*.keystore
+/android/.gradle/
+/android/app/debug.keystore
+/android/app/profile.keystore
+/android/app/release.keystore
+/ios/Pods/
+/ios/.symlinks/
+/ios/Flutter/Flutter.framework/
+/ios/Flutter/Flutter.podspec
+/ios/Runner/GeneratedPluginRegistrant.*
+
+# 本地项目数据（不应提交）
+.workbuddy/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 编辑器
+.idea/
+*.swp

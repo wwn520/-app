@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- iOS 权限与 Bonjour 配置（示例） -->
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key>
+    <string>PrinterApp</string>
+    <key>CFBundleDisplayName</key>
+    <string>PrinterApp</string>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>zh_CN</string>
+    <key>CFBundleIdentifier</key>
+    <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+
+    <!-- 相机 -->
+    <key>NSCameraUsageDescription</key>
+    <string>用于拍照并打印照片/身份证</string>
+
+    <!-- 相册 -->
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>用于从相册选择要打印的图片</string>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>用于保存打印预览图</string>
+
+    <!-- 本地网络 / mDNS 发现（iOS 14+ 必须，否则无法发现局域网打印机） -->
+    <key>NSLocalNetworkUsageDescription</key>
+    <string>需要访问本地网络以发现同一 WiFi 下的打印机</string>
+
+    <!-- Bonjour 服务类型（与 nsd 扫描类型一致；_epson._tcp 为爱普生 L3250 等机型广播类型，iOS 14+ 必须显式声明否则发现不到） -->
+    <key>NSBonjourServices</key>
+    <array>
+        <string>_ipp._tcp</string>
+        <string>_printer._tcp</string>
+        <string>_epson._tcp</string>
+    </array>
+
+    <!-- 接收系统分享（微信等「分享到」本 App） -->
+    <key>CFBundleDocumentTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleTypeName</key>
+            <string>Images</string>
+            <key>LSHandlerRank</key>
+            <string>Alternate</string>
+            <key>LSItemContentTypes</key>
+            <array>
+                <string>public.image</string>
+                <string>public.jpeg</string>
+                <string>public.png</string>
+            </array>
+        </dict>
+    </array>
+
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>network</string>
+    </array>
+
+    <key>UILaunchStoryboardName</key>
+    <string>LaunchScreen</string>
+    <key>UIMainStoryboardFile</key>
+    <string>Main</string>
+</dict>
+</plist>
