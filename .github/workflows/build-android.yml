@@ -18,9 +18,6 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Accept Android licenses
         run: yes | sdkmanager --licenses || true
 
@@ -33,7 +30,7 @@ jobs:
       - name: 生成原生工程（若缺失）
         run: |
           if [ ! -f "android/app/build.gradle" ]; then
-            flutter create --platforms=ios,android .
+            flutter create --project-name printer_app --platforms=android,ios .
           fi
 
       - name: 应用权限补丁（mDNS 发现 + 微信分享）
