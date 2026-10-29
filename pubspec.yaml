@@ -60,7 +60,7 @@ dependencies:
   http: ^1.2.0
 
   # 跨平台 mDNS/NSD 发现
-  nsd: ^0.6.0
+  nsd: ^5.0.1
 
   # 图片排版到 A4 PDF
   pdf: ^3.10.0

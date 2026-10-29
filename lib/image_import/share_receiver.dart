@@ -8,19 +8,19 @@ import 'package:printer_app/models/id_card.dart';
 class ShareReceiver {
   /// 监听后续分享（App 已在后台被唤起时的流式分享）。
   Stream<List<ImportedImage>> get shareStream =>
-      ReceiveSharingIntent.getMediaStream().map(_toImported);
+      ReceiveSharingIntent.instance.getMediaStream().map(_toImported);
 
   /// 获取冷启动时携带的分享图片。
   Future<List<ImportedImage>> getInitialSharedImages() async {
-    final media = await ReceiveSharingIntent.getInitialMedia();
+    final media = await ReceiveSharingIntent.instance.getInitialMedia();
     return _toImported(media);
   }
 
   List<ImportedImage> _toImported(List<SharedMediaFile> media) {
     return media
-        .where((m) => m.path != null)
+        .where((m) => m.type == SharedMediaType.image)
         .map((m) => ImportedImage(
-              path: m.path!,
+              path: m.path,
               source: ImageSource.share,
               bytes: null, // 分享通常只给路径，使用时再读取
             ))
