@@ -9,7 +9,6 @@ import 'package:printer_app/image_import/share_receiver.dart';
 import 'package:printer_app/models/id_card.dart';
 import 'package:printer_app/models/printer.dart';
 import 'package:printer_app/models/print_job.dart';
-import 'package:printer_app/models/print_settings.dart';
 import 'package:printer_app/printer_discovery/nsd_wrapper.dart';
 import 'package:printer_app/printer_discovery/printer_discovery_service.dart';
 import 'package:printer_app/printer_discovery/printer_liveness.dart';

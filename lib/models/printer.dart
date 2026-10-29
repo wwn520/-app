@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 /// 打印机在线状态。
 enum PrinterStatus {

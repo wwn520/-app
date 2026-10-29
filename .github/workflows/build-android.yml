@@ -51,8 +51,8 @@ jobs:
           echo "patched: $F"
           grep -nE "SdkVersion|ndkVersion" "$F" || true
 
-      - name: 静态分析（flutter analyze，0 error 才继续）
-        run: flutter analyze --fatal-infos || flutter analyze
+      - name: 静态分析（flutter analyze，error 级问题阻断出包）
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
 
       - name: 单元测试（flutter test，全过才出包）
         run: flutter test

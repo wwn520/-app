@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:printer_app/app/providers.dart';
 import 'package:printer_app/app/router.dart';
-import 'package:printer_app/models/id_card.dart';
 import 'package:printer_app/widgets/source_picker_sheet.dart';
 
 /// 来源选择页：普通照片 / 身份证 两种入口。

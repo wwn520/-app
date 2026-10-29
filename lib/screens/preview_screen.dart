@@ -7,7 +7,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:printer_app/app/providers.dart';
 import 'package:printer_app/app/router.dart';
 import 'package:printer_app/models/id_card.dart';
-import 'package:printer_app/models/print_settings.dart';
 import 'package:printer_app/pdf_layout/id_card_compositor.dart';
 import 'package:printer_app/pdf_layout/pdf_builder.dart';
 import 'package:printer_app/settings/settings_provider.dart';

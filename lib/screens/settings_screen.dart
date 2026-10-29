@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:printer_app/app/providers.dart';
-import 'package:printer_app/models/print_settings.dart';
 import 'package:printer_app/settings/settings_provider.dart';
 import 'package:printer_app/widgets/color_mode_switch.dart';
 import 'package:printer_app/widgets/printer_list_tile.dart';
