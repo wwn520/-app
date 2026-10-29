@@ -10,6 +10,7 @@ import 'package:printer_app/models/id_card.dart';
 import 'package:printer_app/models/print_settings.dart';
 import 'package:printer_app/pdf_layout/id_card_compositor.dart';
 import 'package:printer_app/pdf_layout/pdf_builder.dart';
+import 'package:printer_app/settings/settings_provider.dart';
 import 'package:printer_app/widgets/a4_preview_widget.dart';
 
 /// A4 版面预览 + 生成 PDF。

@@ -1,6 +1,6 @@
 import 'package:image_picker/image_picker.dart';
 
-import 'package:printer_app/models/id_card.dart';
+import 'package:printer_app/models/id_card.dart' as card;
 
 /// 相册 / 拍照来源封装（基于 image_picker）。
 ///
@@ -9,25 +9,26 @@ class ImagePickerSource {
   final ImagePicker _picker = ImagePicker();
 
   /// 相册多选。
-  Future<List<ImportedImage>> pickMultipleFromAlbum() async {
+  Future<List<card.ImportedImage>> pickMultipleFromAlbum() async {
     final files = await _picker.pickMultiImage();
     return _toImported(files);
   }
 
   /// 相机拍照（单张）。
-  Future<ImportedImage?> takePhoto() async {
+  Future<card.ImportedImage?> takePhoto() async {
     final file = await _picker.pickImage(source: ImageSource.camera);
     if (file == null) return null;
-    return _toImported([file]).first;
+    final imported = await _toImported([file]);
+    return imported.first;
   }
 
-  Future<List<ImportedImage>> _toImported(List<XFile> files) async {
-    final result = <ImportedImage>[];
+  Future<List<card.ImportedImage>> _toImported(List<XFile> files) async {
+    final result = <card.ImportedImage>[];
     for (final f in files) {
       final bytes = await f.readAsBytes();
-      result.add(ImportedImage(
+      result.add(card.ImportedImage(
         path: f.path,
-        source: ImageSource.album,
+        source: card.ImageSource.camera, // 本方法同时服务相册多选与拍照
         bytes: bytes,
       ));
     }

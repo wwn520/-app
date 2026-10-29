@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 
 import 'package:printer_app/pdf_layout/id_card_compositor.dart';

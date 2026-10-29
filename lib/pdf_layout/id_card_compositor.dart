@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:image/image.dart' as img;
@@ -53,13 +54,13 @@ class IdCardCompositor {
   /// 把 [src] 等比缩放居中绘制到 canvas 的 (dx,dy,boxW,boxH) 区域内。
   static void _drawFit(
       img.Image canvas, img.Image src, int dx, int dy, int boxW, int boxH) {
-    final scale = min(boxW / src.width, boxH / src.height);
+    final scale = math.min(boxW / src.width, boxH / src.height);
     final tw = (src.width * scale).round();
     final th = (src.height * scale).round();
     if (tw <= 0 || th <= 0) return;
     final resized = img.copyResize(src, width: tw, height: th);
     final ox = dx + ((boxW - tw) ~/ 2);
     final oy = dy + ((boxH - th) ~/ 2);
-    img.drawImage(canvas, resized, dstX: ox, dstY: oy);
+    img.compositeImage(canvas, resized, dstX: ox, dstY: oy);
   }
 }

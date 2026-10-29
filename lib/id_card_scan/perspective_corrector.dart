@@ -52,18 +52,18 @@ class PerspectiveCorrector {
     ];
 
     // 单应矩阵映射：矩形(dst) -> 原始四边形(pts)
-    final h = _computeHomography(dst, pts);
+    final H = _computeHomography(dst, pts);
 
     final out = img.Image(width: outW, height: outH);
     for (int y = 0; y < outH; y++) {
       for (int x = 0; x < outW; x++) {
-        final denom = h[6] * x + h[7] * y + h[8];
+        final denom = H[6] * x + H[7] * y + H[8];
         if (denom.abs() < 1e-9) {
           out.setPixel(x, y, img.ColorRgb8(255, 255, 255));
           continue;
         }
-        final sx = (h[0] * x + h[1] * y + h[2]) / denom;
-        final sy = (h[3] * x + h[4] * y + h[5]) / denom;
+        final sx = (H[0] * x + H[1] * y + H[2]) / denom;
+        final sy = (H[3] * x + H[4] * y + H[5]) / denom;
         if (sx < 0 || sy < 0 || sx >= w - 1 || sy >= h - 1) {
           out.setPixel(x, y, img.ColorRgb8(255, 255, 255));
         } else {
