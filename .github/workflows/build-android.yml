@@ -39,6 +39,18 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: 兼容性修补 nsd_android 的 gradle（flutter.xxx 动态属性在旧 Flutter 下不可用）
+        run: |
+          F=$(ls ~/.pub-cache/hosted/pub.dev/nsd_android-*/android/build.gradle)
+          sed -i \
+            -e '/ndkVersion flutter.ndkVersion/d' \
+            -e 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 21/' \
+            -e 's/targetSdkVersion flutter.targetSdkVersion/targetSdkVersion 34/' \
+            -e 's/compileSdkVersion flutter.compileSdkVersion/compileSdkVersion 34/' \
+            "$F"
+          echo "patched: $F"
+          grep -nE "SdkVersion|ndkVersion" "$F" || true
+
       - name: Build release APK (split per ABI)
         run: flutter build apk --release --split-per-abi
 
