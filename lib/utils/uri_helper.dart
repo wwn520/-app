@@ -48,8 +48,20 @@ class UriHelper {
     return utf8.decode(raw).trim();
   }
 
-  /// 清理 nsd 服务名（去掉 `.local.` 等后缀，便于展示）。
+  /// 清理 nsd 服务名（去掉 mDNS 类型后缀，便于展示）。
+  ///
+  /// 规则：
+  /// 1. mDNS 服务实例名形如 `EPSON L3250._ipp._tcp.local.` —— 类型后缀都从
+  ///    第一个 `._` 开始，找到即截断到它之前（`EPSON L3250._local.` → `EPSON L3250`）；
+  /// 2. 无 `._` 时仅剥离结尾的裸 `.local.`（兼容 `EPSON.local.` 形式），
+  ///    不截坏正常含点名字；
+  /// 3. 最后 trim。
   static String sanitizeServiceName(String name) {
-    return name.replaceAll(RegExp(r'\.local\.?$'), '').trim();
+    var s = name;
+    final idx = s.indexOf('._');
+    if (idx >= 0) {
+      s = s.substring(0, idx);
+    }
+    return s.replaceAll(RegExp(r'\.local\.$'), '').trim();
   }
 }

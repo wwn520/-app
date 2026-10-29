@@ -29,8 +29,20 @@ class IdCardCompositor {
     final canvas = img.Image(width: a4Width, height: a4Height);
     img.fill(canvas, color: img.ColorRgb8(255, 255, 255));
 
-    final front = img.decodeImage(frontBytes);
-    final backRaw = img.decodeImage(backBytes);
+    // 注意：img.decodeImage 对垃圾字节不总是返回 null，可能内部抛 RangeError，
+    // 两处 decode 必须各自兜底并统一抛出 Exception（不能漏出 IndexError）。
+    final img.Image? front;
+    final img.Image? backRaw;
+    try {
+      front = img.decodeImage(frontBytes);
+    } catch (_) {
+      throw Exception('无法解码身份证图片，拼版失败');
+    }
+    try {
+      backRaw = img.decodeImage(backBytes);
+    } catch (_) {
+      throw Exception('无法解码身份证图片，拼版失败');
+    }
     if (front == null || backRaw == null) {
       throw Exception('无法解码身份证图片，拼版失败');
     }

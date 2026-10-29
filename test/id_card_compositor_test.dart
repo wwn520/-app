@@ -70,9 +70,11 @@ void main() {
         flipBack: true,
       );
       final canvas = img.decodeImage(bytes)!;
-      // 下格起始 x=309，取 cell 内 60px 与 201px 两点
-      final leftOfBack = canvas.getPixel(309 + 60, 420);
-      final rightOfBack = canvas.getPixel(309 + 261 - 60, 420);
+      // topBottom 布局：margin=24，下格 x 24..571、y 433..818。
+      // 采样点取下格内部 y=533，x=84（左）与 x=511（右），
+      // 避开上格/白隙，也避免误用 leftRight 布局的 x 坐标。
+      final leftOfBack = canvas.getPixel(84, 533);
+      final rightOfBack = canvas.getPixel(511, 533);
       // 镜像后：cell 左侧应显示原图右侧(亮)，右侧显示原图左侧(暗)
       expect(leftOfBack.r, greaterThan(rightOfBack.r));
     });

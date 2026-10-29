@@ -35,7 +35,14 @@ class EdgeDetector {
   ///
   /// 返回 [QuadDetectionResult]；置信度不足或检测失败时返回 null（手动兜底）。
   Future<QuadDetectionResult?> detect(Uint8List imageBytes) async {
-    final src = img.decodeImage(imageBytes);
+    // 注意：img.decodeImage 对垃圾字节不总是返回 null，可能内部抛 RangeError，
+    // 必须整体兜底：任何解码失败/异常都返回 null（交由手动兜底，绝不向上抛）。
+    final img.Image? src;
+    try {
+      src = img.decodeImage(imageBytes);
+    } catch (_) {
+      return null;
+    }
     if (src == null) return null;
 
     // 缩小以提速

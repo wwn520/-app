@@ -19,7 +19,14 @@ class PerspectiveCorrector {
   ///
   /// [quad] 四角顺序：tl, tr, br, bl。
   static Future<Uint8List> correct(Uint8List imageBytes, Quad quad) async {
-    final src = img.decodeImage(imageBytes);
+    // 注意：img.decodeImage 对垃圾字节不总是返回 null，可能内部抛 RangeError。
+    // 必须兜底并统一抛出 Exception（调用方/测试按 Exception 处理，不能漏出 IndexError）。
+    final img.Image? src;
+    try {
+      src = img.decodeImage(imageBytes);
+    } catch (_) {
+      throw Exception('无法解码图片，透视校正失败');
+    }
     if (src == null) {
       throw Exception('无法解码图片，透视校正失败');
     }
