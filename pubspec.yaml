@@ -59,8 +59,8 @@ dependencies:
   # IPP 客户端 HTTP/1.1 传输
   http: ^1.2.0
 
-  # 跨平台 mDNS/NSD 发现
-  nsd: ^5.0.1
+  # 跨平台 mDNS/NSD 发现（4.x 与 5.x 同为顶层函数 API；5.x 需 Dart>=3.11，故锁 4.x）
+  nsd: ^4.0.4
 
   # 图片排版到 A4 PDF
   pdf: ^3.10.0
