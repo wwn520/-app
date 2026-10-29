@@ -29,6 +29,9 @@ class FlowProviders {
   static final selectedPrinter =
       StateProvider<Printer?>((ref) => null);
 
+  /// 最后使用的打印机（启动时从持久化恢复，用于自动选中与「离线占位」展示）。
+  static final lastPrinter = StateProvider<Printer?>((ref) => null);
+
   /// 已导入的图片列表（普通模式）。
   static final importedImages =
       StateProvider<List<ImportedImage>>((ref) => const []);

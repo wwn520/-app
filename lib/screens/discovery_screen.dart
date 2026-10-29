@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:printer_app/app/providers.dart';
 import 'package:printer_app/models/printer.dart';
+import 'package:printer_app/settings/settings_provider.dart';
 import 'package:printer_app/widgets/printer_list_tile.dart';
 
 /// 打印机发现页：列出同 WiFi 在线打印机，支持选择 + 手动刷新。
@@ -58,8 +59,18 @@ class DiscoveryScreen extends ConsumerWidget {
         child: ElevatedButton(
           onPressed: selected == null
               ? null
-              : () {
-                  Navigator.of(context).pop();
+              : () async {
+                  // 确认选择时持久化「最后使用的打印机」，供下次启动自动选中。
+                  // 注意：先同步更新 provider，再 await 持久化——
+                  // 避免 await 之后访问 ref（页面若已卸载会抛 StateError）。
+                  ref.read(FlowProviders.lastPrinter.notifier).state =
+                      selected;
+                  await ref
+                      .read(SettingsProviders.service)
+                      .saveLastPrinter(selected);
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+                  }
                 },
           child: const Text('确认选择'),
         ),

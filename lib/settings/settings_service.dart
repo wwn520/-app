@@ -17,6 +17,7 @@ class SettingsService {
 
   static const String _settingsKey = 'print_settings';
   static const String _frequentKey = 'frequent_printers';
+  static const String _lastPrinterKey = 'last_printer';
   static const int _maxFrequent = 5;
 
   /// 懒加载并缓存 SharedPreferences 实例。
@@ -52,6 +53,24 @@ class SettingsService {
       _frequentKey,
       jsonEncode(trimmed.map((e) => e.toJson()).toList()),
     );
+  }
+
+  /// 保存「最后使用的打印机」完整信息（id/name/host/port/ippPath/model）。
+  Future<void> saveLastPrinter(Printer printer) async {
+    final prefs = await _ensure();
+    await prefs.setString(_lastPrinterKey, jsonEncode(printer.toJson()));
+  }
+
+  /// 读取「最后使用的打印机」（无记录或数据损坏时返回 null）。
+  Future<Printer?> loadLastPrinter() async {
+    final prefs = await _ensure();
+    final raw = prefs.getString(_lastPrinterKey);
+    if (raw == null) return null;
+    try {
+      return Printer.fromJson(jsonDecode(raw) as Map<String, dynamic>);
+    } catch (_) {
+      return null;
+    }
   }
 
   /// 读取常用打印机列表。

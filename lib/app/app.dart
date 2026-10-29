@@ -10,7 +10,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'PrinterApp 无广告打印',
+      title: '王婉宁打印',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       initialRoute: AppRoutes.home,

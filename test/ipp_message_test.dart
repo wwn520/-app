@@ -83,7 +83,7 @@ void main() {
       expect(
           String.fromCharCodes(
               attrs['attributes-natural-language']!['value'] as Uint8List),
-          'en-us');
+          'en');
       expect(attrs['printer-uri']!['tag'], 0x45);
       expect(attrs['document-format']!['tag'], 0x49);
       expect(String.fromCharCodes(attrs['document-format']!['value'] as Uint8List),
@@ -95,7 +95,7 @@ void main() {
           'monochrome');
       expect(attrs['media']!['tag'], 0x44);
       expect(String.fromCharCodes(attrs['media']!['value'] as Uint8List),
-          'iso_a4');
+          'iso_a4_210x297mm');
       expect(attrs['sides']!['tag'], 0x44);
       expect(String.fromCharCodes(attrs['sides']!['value'] as Uint8List),
           'one-sided');
@@ -178,6 +178,81 @@ void main() {
       b.addByte(0x03);
       final resp = msg.decode(b.toBytes());
       expect(resp.isSuccessful, isFalse);
+    });
+  });
+
+  group('RFC 合规回归（真机拒收问题修复）', () {
+    test('Print-Job：操作属性组内 attributes-charset 必须位于最前', () {
+      final groups =
+          IppAttributes.printJob(_printer(), const PrintSettings());
+      final bytes =
+          msg.encode(Constants.operationPrintJob, groups, Uint8List(8));
+      expect(bytes[8], 0x01); // operations-attributes-tag
+      expect(bytes[9], 0x47); // attributes-charset 值标签在最前
+    });
+
+    test('Get-Printer-Attributes：操作属性组内 attributes-charset 必须位于最前', () {
+      final groups = IppAttributes.getPrinterAttributes(_printer());
+      final bytes =
+          msg.encode(Constants.operationGetPrinterAttributes, groups);
+      expect(bytes[8], 0x01); // operations-attributes-tag
+      expect(bytes[9], 0x47); // attributes-charset 值标签在最前
+    });
+
+    test('requested-attributes 只出现一次（合并为单条目，逗号分隔多值）', () {
+      final groups = IppAttributes.getPrinterAttributes(_printer());
+      final bytes =
+          msg.encode(Constants.operationGetPrinterAttributes, groups);
+      // 全报文中 'requested-attributes' 名称只允许出现一次
+      final name = utf8.encode('requested-attributes');
+      var count = 0;
+      for (var i = 0; i + name.length <= bytes.length; i++) {
+        var matched = true;
+        for (var j = 0; j < name.length; j++) {
+          if (bytes[i + j] != name[j]) {
+            matched = false;
+            break;
+          }
+        }
+        if (matched) count++;
+      }
+      expect(count, 1);
+    });
+
+    test('media 关键字为 PWG 5101.1 合法值 iso_a4_210x297mm', () {
+      final groups =
+          IppAttributes.printJob(_printer(), const PrintSettings());
+      final bytes =
+          msg.encode(Constants.operationPrintJob, groups, Uint8List(8));
+      final attrs = parseIpp(bytes);
+      expect(
+          String.fromCharCodes(attrs['media']!['value'] as Uint8List),
+          'iso_a4_210x297mm');
+    });
+
+    test('print-quality 以 enum(0x23) 编码，默认 normal=4（RFC 8011）', () {
+      final groups =
+          IppAttributes.printJob(_printer(), const PrintSettings());
+      final bytes =
+          msg.encode(Constants.operationPrintJob, groups, Uint8List(8));
+      final attrs = parseIpp(bytes);
+      expect(attrs.containsKey('print-quality'), isTrue);
+      expect(attrs['print-quality']!['tag'], 0x23);
+      final v = attrs['print-quality']!['value'] as Uint8List;
+      expect(v.length, 4);
+      final value = (v[0] << 24) | (v[1] << 16) | (v[2] << 8) | v[3];
+      expect(value, 4);
+    });
+
+    test('高质量设置 → print-quality=5', () {
+      final groups = IppAttributes.printJob(_printer(),
+          const PrintSettings(quality: PrintQuality.high));
+      final bytes =
+          msg.encode(Constants.operationPrintJob, groups, Uint8List(8));
+      final attrs = parseIpp(bytes);
+      final v = attrs['print-quality']!['value'] as Uint8List;
+      final value = (v[0] << 24) | (v[1] << 16) | (v[2] << 8) | v[3];
+      expect(value, 5);
     });
   });
 }

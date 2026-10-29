@@ -4,11 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
 import 'package:printer_app/id_card_scan/edge_detector.dart';
 
-/// 注意：本测试依赖 lib/id_card_scan/edge_detector.dart。
-/// 该文件当前引用了【不存在】的包 `edge_detect`（正确包名为 `edge_detection`），
-/// 且 API 签名与真实包不符（真实包 EdgeDetection.detectEdge 不接受 sourcePath/savePath），
-/// 因此在本机/CI 编译通过前，工程师需先修复依赖与导入（见 qa-report.md BUG-E 系列）。
-/// 以下用例用于源码修复后的回归验证。
+/// 注意：本测试依赖 lib/id_card_scan/edge_detector.dart（依赖包已修正为
+/// edge_detection ^1.1.3，API 签名与 pub.dev 文档一致，可正常编译运行）。
+/// 用例覆盖：解码失败兜底 + 合成图不抛异常/四角合法范围。
 
 Uint8List _jpeg(int w, int h, img.Color c) {
   final im = img.Image(width: w, height: h);

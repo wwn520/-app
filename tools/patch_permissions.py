@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-"""应用打印机 App 所需的平台权限补丁（在 `flutter create` 生成原生工程之后运行）。
+"""应用打印机 App 所需的平台权限与应用名补丁（在 `flutter create` 生成原生工程之后运行）。
 
 - iOS: 添加本地网络 / mDNS 发现所需的 NSLocalNetworkUsageDescription 与
-       NSBonjourServices（含 _ipp._tcp / _printer._tcp / _epson._tcp，爱普生 L3250 需要）
+       NSBonjourServices（含 _ipp._tcp / _printer._tcp / _epson._tcp，爱普生 L3250 需要）；
+       设置 CFBundleDisplayName / CFBundleName 为应用名
 - Android: 确保 CHANGE_WIFI_MULTICAST_STATE 权限、为主 Activity 添加
-           SEND / SEND_MULTIPLE 系统分享 intent-filter，以及 queries 块（微信分享）
+           SEND / SEND_MULTIPLE 系统分享 intent-filter、queries 块（微信分享），
+           以及 application android:label 应用名
 
 幂等：已存在则跳过，可重复运行。
 """
@@ -13,6 +15,7 @@ import os
 import plistlib
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+APP_NAME = "王婉宁打印"
 
 
 def patch_ios():
@@ -41,8 +44,11 @@ def patch_ios():
         ("NSCameraUsageDescription", "用于拍照并打印照片/身份证"),
         ("NSPhotoLibraryUsageDescription", "用于从相册选择要打印的图片"),
         ("NSPhotoLibraryAddUsageDescription", "用于保存打印预览图"),
+        # 应用名（flutter create 默认为工程名，统一改为产品名）
+        ("CFBundleDisplayName", APP_NAME),
+        ("CFBundleName", APP_NAME),
     ):
-        if k not in data:
+        if data.get(k) != v:
             data[k] = v
             changed = True
 
@@ -79,6 +85,12 @@ def patch_android():
         changed = True
     if not has_perm("android.permission.CHANGE_WIFI_MULTICAST_STATE"):
         add_perm("android.permission.CHANGE_WIFI_MULTICAST_STATE")
+        changed = True
+
+    # 应用名（android:label，flutter create 默认为工程名）
+    application = root.find("application")
+    if application is not None and application.get(A + "label") != APP_NAME:
+        application.set(A + "label", APP_NAME)
         changed = True
 
     activity = next(

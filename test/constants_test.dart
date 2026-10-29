@@ -11,7 +11,8 @@ void main() {
     });
 
     test('纸张/色彩/介质取值符合 IPP 规范', () {
-      expect(Constants.mediaA4, 'iso_a4');
+      // media 必须为 PWG 5101.1 self-describing 关键字（iso_a4 非法会被拒收）
+      expect(Constants.mediaA4, 'iso_a4_210x297mm');
       expect(Constants.printColorModeMono, 'monochrome');
       expect(Constants.printColorModeColor, 'color');
       expect(Constants.sidesOneSided, 'one-sided');
@@ -30,9 +31,15 @@ void main() {
 
     test('字符集/语言/请求用户名', () {
       expect(Constants.charset, 'utf-8');
-      expect(Constants.naturalLanguage, 'en-us');
+      expect(Constants.naturalLanguage, 'en'); // RFC 4646 主标签
       expect(Constants.requestingUserName, 'printer_app');
       expect(Constants.ippDefaultPath, '/ipp/print');
+    });
+
+    test('print-quality 枚举值符合 RFC 8011（draft=3/normal=4/high=5）', () {
+      expect(Constants.printQualityDraft, 3);
+      expect(Constants.printQualityNormal, 4);
+      expect(Constants.printQualityHigh, 5);
     });
   });
 }

@@ -64,7 +64,7 @@ class IppAttributes {
         ]),
       ];
 
-  /// Print-Job 属性组（含 document-format / print-color-mode / media / copies / sides）。
+  /// Print-Job 属性组（含 document-format / print-color-mode / media / copies / sides / print-quality）。
   static List<IppAttributeGroup> printJob(Printer printer, PrintSettings s) {
     final groups = _commonOperations(printer);
     // 将 document-format 并入首个操作属性组（与 charset / natural-language 同组），
@@ -84,23 +84,41 @@ class IppAttributes {
           _utf8(s.colorMode == ColorMode.grayscale
               ? Constants.printColorModeMono
               : Constants.printColorModeColor)),
-      IppAttributeEntry(IppTags.keyword, 'media', _utf8(Constants.mediaA4)),
+      IppAttributeEntry(
+          IppTags.keyword, 'media', _utf8(Constants.mediaA4)),
       IppAttributeEntry(
           IppTags.keyword, 'sides', _utf8(Constants.sidesOneSided)),
+      // print-quality（RFC 8011 §5.2.13）：enum 编码，draft=3 / normal=4 / high=5
+      IppAttributeEntry(
+          IppTags.enumTag, 'print-quality', _int4(_qualityValue(s.quality))),
     ]));
     return groups;
   }
 
   /// Get-Printer-Attributes 属性组（探活）。
+  ///
+  /// 注意：所有操作属性必须在**同一个** operations-attributes-tag 组内；
+  /// `requested-attributes` 为 1setOf keyword，这里合并为**单个** keyword 条目、
+  /// 值用逗号分隔（重复写同名完整条目违反 RFC 8010，会被真实打印机拒收）。
   static List<IppAttributeGroup> getPrinterAttributes(Printer printer) {
     final groups = _commonOperations(printer);
-    groups.add(IppAttributeGroup(IppTags.operationsAttributesTag, [
-      IppAttributeEntry(IppTags.keyword, 'requested-attributes',
-          _utf8('printer-state')),
-      IppAttributeEntry(IppTags.keyword, 'requested-attributes',
-          _utf8('printer-is-accepting-jobs')),
-    ]));
+    groups.first.entries.add(IppAttributeEntry(
+        IppTags.keyword,
+        'requested-attributes',
+        _utf8('printer-state,printer-is-accepting-jobs')));
     return groups;
+  }
+
+  /// PrintSettings.quality → IPP print-quality 枚举值。
+  static int _qualityValue(PrintQuality quality) {
+    switch (quality) {
+      case PrintQuality.draft:
+        return Constants.printQualityDraft;
+      case PrintQuality.normal:
+        return Constants.printQualityNormal;
+      case PrintQuality.high:
+        return Constants.printQualityHigh;
+    }
   }
 
   // ── 值编码辅助 ──

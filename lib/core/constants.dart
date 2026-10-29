@@ -52,19 +52,30 @@ class Constants {
   /// 彩色模式对应 IPP print-color-mode
   static const String printColorModeColor = 'color';
 
-  /// 介质尺寸 A4（ISO A4）
-  static const String mediaA4 = 'iso_a4';
+  /// 介质尺寸 A4 —— PWG 5101.1 合法 self-describing media 关键字。
+  /// 注意：`iso_a4` 不是合法 IPP media 关键字，会被真实打印机拒收。
+  static const String mediaA4 = 'iso_a4_210x297mm';
 
   /// 单面打印
   static const String sidesOneSided = 'one-sided';
 
-  /// 字符集与语言
+  /// 字符集与语言（RFC 4646 主标签 `en`，比 `en-us` 更标准）
   static const String charset = 'utf-8';
-  static const String naturalLanguage = 'en-us';
+  static const String naturalLanguage = 'en';
 
-  /// 用于探测/提交时的请求用户名
+  /// 请求用户名
   static const String requestingUserName = 'printer_app';
 
   /// 作业名前缀
   static const String jobName = 'printer_app_job';
+
+  // ───────── print-quality 枚举值（RFC 8011 §5.2.13） ─────────
+  /// print-quality: draft = 3
+  static const int printQualityDraft = 3;
+
+  /// print-quality: normal = 4
+  static const int printQualityNormal = 4;
+
+  /// print-quality: high = 5
+  static const int printQualityHigh = 5;
 }

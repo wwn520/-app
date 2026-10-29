@@ -4,9 +4,9 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleName</key>
-    <string>PrinterApp</string>
+    <string>王婉宁打印</string>
     <key>CFBundleDisplayName</key>
-    <string>PrinterApp</string>
+    <string>王婉宁打印</string>
     <key>CFBundleDevelopmentRegion</key>
     <string>zh_CN</string>
     <key>CFBundleIdentifier</key>
